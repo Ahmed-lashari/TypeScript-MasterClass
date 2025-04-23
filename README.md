@@ -30,6 +30,8 @@ In this repository, I will be documenting my learning and hands-on projects with
 - ✅ **Type-safe Asynchronous Code (Promises, async/await)**
 - ✅ **Object-Oriented TypeScript (Classes, Access Modifiers, Inheritance)**
 - ✅ **Modules & Imports**
+- ✅ **Advance Typescript**
+- ✅ **TypeScript with Node.js**
 - ✅ **TypeScript with Express.js**
 - ✅ **Environment Variables & Config Management**
 - ✅ **Error Handling with Types**
