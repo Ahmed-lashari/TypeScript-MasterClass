@@ -1,95 +1,152 @@
-// Before Diving into Theoratical Conepts, LEts solve an Example First
-type Person = {
-  firstName?: string;
-};
+// What is infer?
 
-const details: Object = { lastName: "Lashari" };
+// infer is a keyword used to "guess" or "extract" a type from another type.
 
-// Following the generic techniques we learned in previous chapter, we will use Generic Key " T " as parameter type and return type
-function getDetails<T>(data: T): T {
-  return data as T;
+// we use it inside a conditional type (a type with "extends").
+
+//Syntax:
+// T extends Something<infer U> ? U : DefaultType
+
+// example
+type result1 = true extends boolean ? "boolean" : "true"; //  output: "boolean"(because true does extends boolean type)
+
+// now reversing the condition
+type result2 = boolean extends true ? "true" : "boolean"; // output: 'true' (because true extends boolean type not the other way around)
+
+// another example check
+function func1(checkType: boolean) {
+  console.log(`Type: ${typeof checkType}: Value: ${checkType}\n`);
+}
+function func2(checkType: true) {
+  console.log(`Type: ${typeof checkType}: Value: ${checkType}\n`);
 }
 
-console.log(getDetails(details));
+const result1: boolean = true;
+const result2: true = true;
 
-// Every Thing is Well Structured so we will get the Output as :
-// {lastName: 'Lashari'}
+func1(result1); // output: Type is Boolean
+// func2(!result2); // output: Argument of type 'boolean' is not assignable to parameter of type 'true'
 
-// NOW HERE COMES THE MAGIC
+// WHAT WE GET FROM THIS SIMPLE EXAMPLE ?
 
-// we want the getDetails function to accept parameter of type Person
-// and return us an object with first and last name both.
+// 1. func1(result1) works because result1 is of type boolean, which includes both true and false
 
-// Procedurally We can achieve this thing like this:
+// 2. func2(!result2) fails because !result2 evaluates to false (type: boolean), which cannot be passed to a function expecting the literal type " true ".
 
-type Person2 = {
-  firstName?: string;
-  lastName: string;
-};
-const personDetails: Person2 = { lastName: "Lashari" };
+// 3. This links to the infer keyword because infer is used in " type-level logic "" to extract specific types (like " true " from boolean) , just like func2 expects exactly true not any boolean
 
-function getPerrsonDetail(data: Person2): Person2 {
-  data.firstName = "Ahmed";
-  return data as Person2;
-}
+// NOW DIGGING DEEPER INTO INFER KEY
 
-console.log(getPerrsonDetail(personDetails));
+// Using a Typescript's Global runtime type returner function
 
-// OUTPUT:
-// {lastName: 'Lashari', firstName: 'Ahmed'}
+// SYNTAX:
+// type VAR-NAME = ReturnType<typeof `variable/function/whose /time/is/being/checked` >
 
-/// BUT THIS IS CODE IS NOT REUSABLE AND WILL SLOW DOWN THE COMPILE TIME.
+type checkType = ReturnType<typeof func1>; // checkType = void
+// console.log(typeof checkType);
 
-/// LWTS TACKLE THIS SETUATION USING GENERIC-CONSTRAINTS
+/// INFER LETS US FIND OUT SOMETHING THAT WE WANT TO INVESTIGTE , REPRESENT IT AS A VARIABLE AND THEN WE CAN USED THAT STORED VALUE FROM THE VARIABLE AND REUSE IT HOW EVER WE WANT
 
-type ConstraintPerson = {
-  firstName?: string;
-};
-const constraintDetail: Object = { lastName: "Lashari" };
+// THATS THE BASIC CONCEPT OF USING INFER KEY
 
-function getConstraintPerson<T extends ConstraintPerson>(data: T): T {
-  data.firstName = "Muhammad Ahmed";
-  return data as T;
-}
+// Getting the return type of a function now, USING INFER and not ReturnType<...>
 
-console.log("Generic Constraint Person:");
-console.log(getConstraintPerson(constraintDetail));
+type getReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
-// AND THE OUTPUT WE GET IS:
-// Generic Constraint Person:
-// {lastName: 'Lashari', firstName: 'Muhammad Ahmed'}
-
-/// NOW THE CODE IS REUSABLE AND COMPILE TIME WIL BE FAST. THANKS TO THE COMBINATION OF GENERIC AND CONSTRAINT
-
-// For Further Understanding You can check the following links that redirect us to TypeScript Official Documentation about Generic and Generic Constrainst where they had explained another Generic Constraint key, named as " extends keyof "
-// which is passed as a second generic key to the fucntion and returns a specific value of that key placed in the passed object.
-
-// Syntax for doing so:
-
-// let myself = { name: 'Ahmed LAshari', age: 20 }
-
-// GENERIC FUNCTION DEFINATION SYNTAX
+type returnedTypeIs = getReturnType<() => number>; // number
 
 /*
+=> SYNTAX EXPLANATION
 
-function genericFunc<A extends object, B extends keyof A>(isObj: A, isKey: B){
-    return isObj[isKey];
-}
-
+=> type getReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
 
+type getReturnType<T> = 
 
-PASSING TO GENERIC FUNCTION
+1. we are creating a " type alias " named as  " getReturnType ".
+2. it is taking onr generic type parameter " T ", could be more than one
 
-let temp = genericFunc(myself, 'age')
-console.log(temp) // 20
+====================================================================
 
+T extends (...args: any[]) =>
 
+1. we check, DOES T LOOKS LIKE A FUNCTION ?
+2. specifically, a function that takes any arguments (...args: any[])
+3. and returns  " some type ", which we want to extract.
 
+====================================================================
 
+infer R 
 
-// RESOURCE LINK:
+1. " infer R " is always used to "guess" or "extract" the return type of the function
+2. the keyword " infer R " is like saying "find or guess the type of R"
+3. " R " is the function that we passed and " T extends (...args: any[]) => " said " YES IT LOOKS LIKE A FUNCTIOn"
 
-https://www.typescripttutorial.net/typescript-tutorial/typescript-generic-constraints/
+====================================================================
+
+? R 
+
+1. if the condition is true (T is a function), return the inferred return type .
+
+====================================================================
+: never;
+
+1. otherwise (T is not a function), return " never " (which means invalid or no type).
 
 */
+
+// EXAMPLEs
+
+type example1 = getReturnType<() => string>; // output; string
+type example2 = getReturnType<() => number>; // output: number
+type example3 = getReturnType<number>; // output: never (coz number is not a function)
+
+// ====================================================================
+type ElementType<T> = T extends (infer U)[] ? U : T;
+
+type FromArray = ElementType<string[]>; // string
+
+/*
+=> SYNTAX EXPLANATION:
+
+type ElementType<T> = 
+
+1. We are creating another " type alias " called " ElementType ".
+2. It accepts a generic type " T "
+
+====================================================================
+
+
+T extends (infer U)[] 
+
+
+1. We check: Is T an array? 
+2. " Is T like some type of an array of something? "   ---  " U[] "
+3. " infer U " tells typeScript; "Try to extract whatever the array holds."
+
+====================================================================
+
+? U 
+3. if YES, then return the extracted element type " U ".
+4.  e-g, if T is string[], then U will be string.
+
+====================================================================
+
+
+: T;
+1. if NO (T is not an array), just return T as it is.
+
+*/
+
+// PRACTICAL USES OF THE INFER IN REAL WORLD PROBLEMS
+/*
+
+1 .  API Response Type Extraction
+2 .  A Form consisting of input field whose type whould be extracted types
+3 .  Dynamic Form Builders / Object Mappers
+4 .  Building reusable utility types	for type safety
+
+
+*/
+
+// SOURCES I USED FOR INFER KEY UNDERSTANDING AND WILL HELP YOU TOO FOR GETTING A MORE BETTER GRIP ON THE TOPIC:

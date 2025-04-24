@@ -1,51 +1,53 @@
-var details = { lastName: "Lashari" };
-// Following the generic techniques we learned in previous chapter, we will use Generic Key " T " as parameter type and return type
-function getDetails(data) {
-    return data;
+// What is infer?
+// another example check
+function func1(checkType) {
+    console.log("Type: ".concat(typeof checkType, ": Value: ").concat(checkType, "\n"));
 }
-console.log(getDetails(details));
-var personDetails = { lastName: "Lashari" };
-function getPerrsonDetail(data) {
-    data.firstName = "Ahmed";
-    return data;
+function func2(checkType) {
+    console.log("Type: ".concat(typeof checkType, ": Value: ").concat(checkType, "\n"));
 }
-console.log(getPerrsonDetail(personDetails));
-var constraintDetail = { lastName: "Lashari" };
-function getConstraintPerson(data) {
-    data.firstName = "Muhammad Ahmed";
-    return data;
-}
-console.log("Generic Constraint Person:");
-console.log(getConstraintPerson(constraintDetail));
-// AND THE OUTPUT WE GET IS:
-// Generic Constraint Person:
-// {lastName: 'Lashari', firstName: 'Muhammad Ahmed'}
-/// NOW THE CODE IS REUSABLE AND COMPILE TIME WIL BE FAST. THANKS TO THE COMBINATION OF GENERIC AND CONSTRAINT
-// For Further Understanding You can check the following links that redirect us to TypeScript Official Documentation about Generic and Generic Constrainst where they had explained another Generic Constraint key, named as " extends keyof "
-// which is passed as a second generic key to the fucntion and returns a specific value of that key placed in the passed object.
-// Syntax for doing so:
-// let myself = { name: 'Ahmed LAshari', age: 20 }
-// GENERIC FUNCTION DEFINATION SYNTAX
+var result1 = true;
+var result2 = true;
+func1(result1); // output: Type is Boolean
 /*
+=> SYNTAX EXPLANATION:
 
-function genericFunc<A extends object, B extends keyof A>(isObj: A, isKey: B){
-    return isObj[isKey];
-}
+type ElementType<T> =
 
+1. We are creating another " type alias " called " ElementType ".
+2. It accepts a generic type " T "
 
-
-
-PASSING TO GENERIC FUNCTION
-
-let temp = genericFunc(myself, 'age')
-console.log(temp) // 20
+====================================================================
 
 
+T extends (infer U)[]
 
 
+1. We check: Is T an array?
+2. " Is T like some type of an array of something? "   ---  " U[] "
+3. " infer U " tells typeScript; "Try to extract whatever the array holds."
 
-// RESOURCE LINK:
+====================================================================
 
-https://www.typescripttutorial.net/typescript-tutorial/typescript-generic-constraints/
+? U
+3. if YES, then return the extracted element type " U ".
+4.  e-g, if T is string[], then U will be string.
+
+====================================================================
+
+
+: T;
+1. if NO (T is not an array), just return T as it is.
 
 */
+// PRACTICAL USES OF THE INFER IN REAL WORLD PROBLEMS
+/*
+
+1 .  API Response Type Extraction
+2 .  A Form consisting of input field whose type whould be extracted types
+3 .  Dynamic Form Builders / Object Mappers
+4 .  Building reusable utility types	for type safety
+
+
+*/
+// SOURCES I USED FOR INFER KEY UNDERSTANDING AND WILL HELP YOU TOO FOR GETTING A MORE BETTER GRIP ON THE TOPIC:
